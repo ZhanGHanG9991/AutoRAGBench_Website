@@ -1,6 +1,6 @@
-# RAGEngBench project page
+# AutoRAGBench project page
 
-Static site for RAGEngBench, served by GitHub Pages from the `main` branch root.
+Static site for AutoRAGBench, served by GitHub Pages from the `main` branch root.
 
 - `index.html` — leaderboard, scoring protocol, setup, observations, citation
 - `traces/` — timestamped GPT-6.1 Sol (Codex CLI) build traces for all nine benchmarks

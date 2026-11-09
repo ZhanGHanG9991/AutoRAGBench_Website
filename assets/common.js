@@ -26,7 +26,7 @@ window.SITE = {
 })();
 
 const U = {
-  D: window.RAGENG,
+  D: window.AUTORAG,
   fam: f => `var(--c-${f.toLowerCase()})`,
   pct: (x, d = 1) => (x * 100).toFixed(d),
   sgn: (x, d = 1) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(d),

@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RAGEngBench</title>
-<meta name="description" content="RAGEngBench measures whether coding agents can engineer retrieval-augmented generation systems end to end and generalize to hidden test sets.">
-<meta property="og:title" content="RAGEngBench">
+<title>AutoRAGBench</title>
+<meta name="description" content="AutoRAGBench measures whether coding agents can engineer retrieval-augmented generation systems end to end and generalize to hidden test sets.">
+<meta property="og:title" content="AutoRAGBench">
 <meta property="og:description" content="Can coding agents engineer RAG systems end to end? 9 agents, 9 benchmarks, 5 held-out readers.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2323665f'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' font-weight='700' text-anchor='middle' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2323665f'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' font-weight='700' text-anchor='middle' fill='white'%3EA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
 <body>
 <nav class="nav">
   <div class="wrap">
-    <a class="brand" href="./">RAGEng<b>Bench</b></a>
+    <a class="brand" href="./">AutoRAG<b>Bench</b></a>
     <div class="nav-links">
       <a href="#leaderboard">Leaderboard</a>
       <a href="traces/">Traces</a>
@@ -34,7 +34,7 @@
 <header class="hero">
   <div class="wrap">
     <span class="pill"><b>NEW</b> · formal-v2 results · 81 agent-built RAG systems</span>
-    <h1>RAGEng<span>Bench</span></h1>
+    <h1>AutoRAG<span>Bench</span></h1>
     <p class="tag">Measuring how well AI coding agents can engineer retrieval-augmented generation systems</p>
     <p class="lede">We give each agent a raw corpus, a labeled training split, one H800 GPU and 6 hours to build a retrieval service from scratch. The frozen service runs once on a hidden test set, and five held-out reader models answer from the evidence it returns.</p>
     <div class="btns">
@@ -164,13 +164,13 @@
     </div>
     <div class="sec-head" style="margin-top:44px">
       <h2>Citation</h2>
-      <p>If you find RAGEngBench useful, please cite us as:</p>
+      <p>If you find AutoRAGBench useful, please cite us as:</p>
     </div>
     <div class="card cite">
       <button class="btn sm js-copy">Copy</button>
-<pre class="js-bib">@misc{ragengbench2026,
-  title  = {RAGEngBench: Can Coding Agents Engineer Retrieval-Augmented Generation Systems?},
-  author = {RAGEngBench Team},
+<pre class="js-bib">@misc{autoragbench2026,
+  title  = {AutoRAGBench: Can Coding Agents Engineer Retrieval-Augmented Generation Systems?},
+  author = {AutoRAGBench Team},
   year   = {2026},
   note   = {Project page: https://zhanghang9991.github.io/AutoRAGBench_Website/}
 }</pre>
@@ -178,7 +178,7 @@
   </div>
 </section>
 
-<footer><div class="wrap">RAGEngBench · results version formal-v2 · evaluation protocol fixed-evidence-v1</div></footer>
+<footer><div class="wrap">AutoRAGBench · results version formal-v2 · evaluation protocol fixed-evidence-v1</div></footer>
 <div class="tip"></div>
 <script src="assets/data.js"></script>
 <script src="assets/common.js"></script>
