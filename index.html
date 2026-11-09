@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAGEngBench</title>
+<meta name="description" content="RAGEngBench measures whether coding agents can engineer retrieval-augmented generation systems end to end and generalize to hidden test sets.">
+<meta property="og:title" content="RAGEngBench">
+<meta property="og:description" content="Can coding agents engineer RAG systems end to end? 9 agents, 9 benchmarks, 5 held-out readers.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2323665f'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' font-weight='700' text-anchor='middle' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="./">RAGEng<b>Bench</b></a>
+    <div class="nav-links">
+      <a href="#leaderboard">Leaderboard</a>
+      <a href="traces/">Traces</a>
+      <a href="#scoring">Scoring</a>
+      <a href="#setup">Setup</a>
+      <a href="#observations">Observations</a>
+      <a href="#cite">Cite</a>
+    </div>
+    <a class="icon-btn js-github" href="#" title="GitHub" aria-label="GitHub"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+    <button class="icon-btn js-theme" title="Toggle theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="pill"><b>NEW</b> · formal-v2 results · 81 agent-built RAG systems</span>
+    <h1>RAGEng<span>Bench</span></h1>
+    <p class="tag">Measuring how well AI coding agents can engineer retrieval-augmented generation systems</p>
+    <p class="lede">We give each agent a raw corpus, a labeled training split, one H800 GPU and 6 hours to build a retrieval service from scratch. The frozen service runs once on a hidden test set, and five held-out reader models answer from the evidence it returns.</p>
+    <div class="btns">
+      <a class="btn primary js-paper" href="#" aria-disabled="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg><span>Paper (coming soon)</span></a>
+      <a class="btn js-github" href="#"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+      <a class="btn" href="traces/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Browse Traces</a>
+      <a class="btn" href="#leaderboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 20V10M12 20V4M18 20v-7"/></svg>Leaderboard</a>
+    </div>
+    <div class="stats">
+      <div><b>9</b><span>agents</span></div>
+      <div><b>9</b><span>benchmarks</span></div>
+      <div><b>5</b><span>held-out readers</span></div>
+      <div><b>81</b><span>builds</span></div>
+      <div><b>6 h</b><span>per build</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="block" id="leaderboard">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Leaderboard</h2>
+      <p>Macro-average over nine benchmarks, scored ×100. One build per agent and benchmark — no repeats and no best-of-n. The dashed tick marks the expert Reference RAG.</p>
+    </div>
+    <div class="controls">Reader: <div class="seg js-reader"></div></div>
+    <div class="card lb js-lb"></div>
+    <p class="note" style="text-align:center;margin-top:10px">Tap a row to see per-benchmark scores. Δ = difference from Reference RAG under the same reader(s).</p>
+
+    <div class="card" style="margin-top:28px;padding:6px 0 4px">
+      <div class="tbl-wrap"><table class="heat js-heat"></table></div>
+    </div>
+    <p class="note" style="text-align:center;margin-top:10px">Scores by benchmark under the selected reader · darker = higher within column · outlined = best agent.</p>
+
+    <div class="two" style="margin-top:28px">
+      <div class="card chart-card">
+        <h3>Accuracy vs. retrieval latency</h3>
+        <p class="sub">Mean test-time retrieval seconds per question (excludes reader time), averaged over nine benchmarks.</p>
+        <div class="js-scatter"></div>
+        <div class="legend js-legend"></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Gain over the reference, per benchmark</h3>
+        <p class="sub">Best agent, median agent and BM25, each minus Reference RAG (points, selected reader).</p>
+        <div class="js-gain"></div>
+        <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>best agent</span><span><i class="dot" style="background:var(--c-google)"></i>median agent</span><span><i class="dot" style="background:var(--ref)"></i>BM25 RAG</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block alt" id="scoring">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>How a Run Is Scored</h2>
+      <p>The agent never sees the test questions or the readers. It ships a service that may only return verbatim, provenance-checked passages, so all credit comes from retrieval.</p>
+    </div>
+    <div class="flow">
+      <div class="card step"><h4>1 · Build</h4><ul><li>Raw corpus + labeled train split</li><li>One H800, 6 hours, isolated sandbox</li><li>Fixed generator: Qwen3.5-4B</li><li><code>self_check</code> on a dev split</li></ul><span class="out">submission/ → frozen</span></div>
+      <div class="arr">→</div>
+      <div class="card step"><h4>2 · Audit</h4><ul><li>API-usage judge</li><li>Data-lookup judge</li><li>Integrity judge</li><li>General rules judge</li><li>Workspace &amp; leak scans</li></ul></div>
+      <div class="arr">→</div>
+      <div class="card step"><h4>3 · Retrieve once</h4><ul><li><code>POST /retrieve</code> on hidden test</li><li>≤ 4 generator calls, 32k tokens, 60 s per question</li><li>Evidence ≤ 32k chars, verbatim from corpus</li></ul><span class="out">evidence → sealed</span></div>
+      <div class="arr">→</div>
+      <div class="card step"><h4>4 · Five readers answer</h4><ul><li>Gemma 4 E4B · Gemma 3 4B · Phi-4-mini · SmolLM3 3B · Llama 3.2 3B</li><li>Temperature 0, ≤ 512 tokens</li><li>Answers never feed back</li></ul><span class="out">score = mean of 5 readers</span></div>
+    </div>
+    <div class="flagbox"><b class="ok">CLEAN</b> scored on the hidden test · <b class="bad">FLAGGED</b> no score, never back-filled</div>
+  </div>
+</section>
+
+<section class="block" id="setup">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Benchmark Setup</h2>
+      <p>Every agent runs under the same conditions, through its own native CLI harness at high reasoning effort.</p>
+    </div>
+    <div class="facts">
+      <div class="card"><h4>Agents</h4><p>9 models in 4 harnesses: Codex CLI, Claude Code, OpenCode, DeepSeek Harness</p></div>
+      <div class="card"><h4>Hardware</h4><p>One H800 80 GB GPU per build</p></div>
+      <div class="card"><h4>Time limit</h4><p>6 hours; the workspace freezes at the deadline</p></div>
+      <div class="card"><h4>Generator</h4><p>Qwen3.5-4B, metered per question at test time</p></div>
+      <div class="card"><h4>Score</h4><p>Primary metric ×100, mean over 5 readers, macro over 9 tasks</p></div>
+    </div>
+    <div class="bench-grid js-bench"></div>
+  </div>
+</section>
+
+<section class="block alt" id="observations">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Observations</h2>
+      <p>What the scores and the 81 delivered systems show about how agents engineer RAG.</p>
+    </div>
+    <div class="tabs js-tabs">
+      <button class="on" data-t="o1">Beating experts</button>
+      <button data-t="o2">Where gains come from</button>
+      <button data-t="o3">Reader agreement</button>
+      <button data-t="o4">What agents build</button>
+    </div>
+    <div class="obs on" id="o1"><div class="card">
+      <h3>Seven of nine agents beat the expert reference RAG</h3>
+      <p class="js-o1"></p>
+      <div class="js-o1chart"></div>
+    </div></div>
+    <div class="obs" id="o2"><div class="card">
+      <h3>Gains concentrate on knowledge-graph and multi-hop tasks</h3>
+      <p class="js-o2"></p>
+      <div class="tbl-wrap"><table class="heat js-o2tbl"></table></div>
+    </div></div>
+    <div class="obs" id="o3"><div class="card">
+      <h3>The ranking holds across all five readers</h3>
+      <p class="js-o3"></p>
+      <div class="tbl-wrap"><table class="heat js-o3tbl"></table></div>
+    </div></div>
+    <div class="obs" id="o4"><div class="card">
+      <h3>Agents adapt the architecture to the task</h3>
+      <p>We coded the 81 delivered systems along the RAG pipeline. Every agent switches to graph traversal on WebQSP and CWQ and to single-document retrieval on QASPER, while open-domain tasks get sparse + dense hybrids. Numbers count agents (out of 9) using each component; Share is over all 81 systems (retrieval flow excludes the 18 graph systems).</p>
+      <div class="tbl-wrap"><table class="strat js-strat"></table></div>
+    </div></div>
+  </div>
+</section>
+
+<section class="block" id="cite">
+  <div class="wrap narrow">
+    <div class="sec-head">
+      <h2>Team</h2>
+      <p class="js-team">Author list coming with the paper release.</p>
+    </div>
+    <div class="sec-head" style="margin-top:44px">
+      <h2>Citation</h2>
+      <p>If you find RAGEngBench useful, please cite us as:</p>
+    </div>
+    <div class="card cite">
+      <button class="btn sm js-copy">Copy</button>
+<pre class="js-bib">@misc{ragengbench2026,
+  title  = {RAGEngBench: Can Coding Agents Engineer Retrieval-Augmented Generation Systems?},
+  author = {RAGEngBench Team},
+  year   = {2026},
+  note   = {Project page: https://zhanghang9991.github.io/ragengbench/}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">RAGEngBench · results version formal-v2 · evaluation protocol fixed-evidence-v1</div></footer>
+<div class="tip"></div>
+<script src="assets/data.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/home.js"></script>
+</body>
+</html>
