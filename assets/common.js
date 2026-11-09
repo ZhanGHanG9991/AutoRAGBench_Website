@@ -1,6 +1,6 @@
 // Site-wide settings: edit these when the paper / code go public.
 window.SITE = {
-  github: 'https://github.com/ZhanGHanG9991/ragengbench',
+  github: 'https://github.com/ZhanGHanG9991/AutoRAGBench_Website',
   paper: '',            // e.g. 'https://arxiv.org/abs/xxxx.xxxxx' — empty keeps the button disabled
   team: ''              // HTML for the author list; empty shows the placeholder
 };
