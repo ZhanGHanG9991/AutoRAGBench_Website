@@ -62,53 +62,67 @@
   }
   const short = { 'DeepSeek Harness': 'DSH', 'reference': 'reference' };
 
+  // baselines are drawn as horizontal lines across the agent bars
+  const LINE = { ref: ['var(--ref-ink)', '7 4', 1.8], hsota: ['var(--hs)', '7 4', 1.8], bm25: ['var(--ref-ink)', '3 3', 1.4], closed_book: ['var(--ref-ink)', '1.5 3.5', 1.4] };
+
   function renderMain() {
     const host = $('.js-main');
-    const W = Math.max(740, (host.clientWidth || 760) - 20), H = 400, L = 44, Rm = 10, T = 30, Bm = 74;
-    const rows = shown(reader).map(m => {
+    const W = Math.max(760, (host.clientWidth || 780) - 20), H = 400, L = 44, Rm = 150, T = 30, Bm = 74;
+    const vis = shown(reader);
+    const rows = vis.filter(m => m.a).map(m => {
       const v = U.val(m.sc, task, reader);
       const rr = R.map(r => U.val(m.sc, task, r.key));
       return { m, v, lo: Math.min(...rr), hi: Math.max(...rr) };
     }).sort((x, y) => x.v - y.v);
-    const top = Math.max(...rows.map(r => reader === 'avg' ? r.hi : r.v)) * 100;
+    const lines = vis.filter(m => m.r).map(m => ({ m, v: U.val(m.sc, task, reader) })).sort((x, y) => y.v - x.v);
+    const top = Math.max(...rows.map(r => reader === 'avg' ? r.hi : r.v), ...lines.map(l => l.v)) * 100;
     const ymax = Math.min(100, Math.ceil((top + 6) / 10) * 10);
-    const band = (W - L - Rm) / rows.length, bw = Math.min(54, band * 0.64);
+    const x1 = W - Rm, band = (x1 - L) / rows.length, bw = Math.min(54, band * 0.64);
     const sy = v => T + (1 - v / ymax) * (H - T - Bm);
     let g = '';
-    for (let v = 0; v <= ymax; v += 10) g += `<line class="gridl" x1="${L}" x2="${W - Rm}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${L - 8}" y="${sy(v) + 4}" text-anchor="end">${v}</text>`;
+    for (let v = 0; v <= ymax; v += 10) g += `<line class="gridl" x1="${L}" x2="${x1}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${L - 8}" y="${sy(v) + 4}" text-anchor="end">${v}</text>`;
     g += `<text transform="translate(12 ${(T + H - Bm) / 2}) rotate(-90)" text-anchor="middle">${task === 'avg' ? 'Average score (9 tasks)' : bname(task) + ' · ' + B.find(b => b.key === task).metric + ' ×100'}</text>`;
+    const vsRef = v => `<br>vs Reference RAG: ${U.sgn((v - U.val(ref.scores, task, reader)) * 100)}`;
     rows.forEach((r, i) => {
-      const cx = L + band * (i + 0.5), x = cx - bw / 2, y = sy(r.v * 100), h = sy(0) - y;
+      const cx = L + band * (i + 0.5), x = cx - bw / 2, y = sy(r.v * 100);
       const on = r.m.key === sel;
-      const col = fill(r.m);
-      const avgOnly = r.m.r && r.m.r.avg_only;
       const tip = `<b>${U.esc(r.m.name)}</b> · ${r.m.sub}<br>${task === 'avg' ? 'Average' : bname(task)}: <b>${U.pct(r.v, 2)}</b>` +
-        (avgOnly && task !== 'avg' ? `<br>method: ${r.m.r.method[task]}` : '') +
-        (reader === 'avg' && !avgOnly ? `<br>range over answering models: ${U.pct(r.lo)}–${U.pct(r.hi)}` : '') + (r.m.key !== 'ref' ? `<br>vs Reference RAG: ${U.sgn((r.v - U.val(ref.scores, task, reader)) * 100)}` : '');
+        (reader === 'avg' ? `<br>range over answering models: ${U.pct(r.lo)}–${U.pct(r.hi)}` : '') + vsRef(r.v);
       g += `<g class="bar" data-k="${r.m.key}" data-tip="${tip.replace(/"/g, '&quot;')}">
         ${on ? `<rect x="${cx - band / 2 + 2}" y="${T - 12}" width="${band - 4}" height="${sy(0) - T + 12}" rx="8" fill="var(--primary-soft)"/>` : ''}
         <rect x="${cx - band / 2}" y="${T - 10}" width="${band}" height="${H - T + 10}" fill="transparent"/>
-        <path d="M${x},${sy(0)} V${y + 5} q0,-5 5,-5 H${x + bw - 5} q5,0 5,5 V${sy(0)} Z" fill="${col}" ${r.m.r ? 'opacity=".9"' : ''}/>`;
-      if (reader === 'avg' && !avgOnly) {
+        <path d="M${x},${sy(0)} V${y + 5} q0,-5 5,-5 H${x + bw - 5} q5,0 5,5 V${sy(0)} Z" fill="${fill(r.m)}"/>`;
+      if (reader === 'avg') {
         const y0 = sy(r.lo * 100), y1 = sy(r.hi * 100);
         g += `<g stroke="var(--ink)" stroke-width="1.2" opacity=".4"><line x1="${cx}" x2="${cx}" y1="${y0}" y2="${y1}"/><line x1="${cx - 5}" x2="${cx + 5}" y1="${y1}" y2="${y1}"/><line x1="${cx - 5}" x2="${cx + 5}" y1="${y0}" y2="${y0}"/></g>`;
       }
       const ly = (reader === 'avg' ? sy(r.hi * 100) : y) - 8;
-      g += `<text class="num" x="${cx}" y="${ly}" text-anchor="middle">${U.pct(r.v)}</text>`;
+      g += `<text class="num" x="${cx}" y="${ly}" text-anchor="middle" style="paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round">${U.pct(r.v)}</text>`;
       const nm = splitName(r.m.name, Math.floor(band / 7.2));
       nm.forEach((s, j) => g += `<text class="lbl" x="${cx}" y="${sy(0) + 18 + j * 14}" text-anchor="middle" ${on ? 'style="fill:var(--primary)"' : ''}>${U.esc(s)}</text>`);
       g += `<text class="sub" x="${cx}" y="${sy(0) + 18 + nm.length * 14}" text-anchor="middle">${band < 90 ? (short[r.m.sub] || r.m.sub) : r.m.sub}</text>`;
       if (on) g += `<path d="M${cx - 6},${H - 4} l6,-7 l6,7 z" fill="var(--primary)"/>`;
       g += `</g>`;
     });
-    const rv = U.val(ref.scores, task, reader) * 100;
-    g += `<line x1="${L}" x2="${W - Rm}" y1="${sy(rv)}" y2="${sy(rv)}" stroke="var(--ref-ink)" stroke-dasharray="5 4" opacity=".8" pointer-events="none"/>`;
-    g += `<text x="${L + 6}" y="${sy(rv) - 6}" style="fill:var(--ref-ink);font-weight:600" pointer-events="none">Reference RAG ${rv.toFixed(1)}</text>`;
-    g += `<line class="axisl" x1="${L}" x2="${W - Rm}" y1="${sy(0)}" y2="${sy(0)}"/>`;
+    // baseline lines; labels sit right of the plot, nudged apart when values are close
+    let prev = -Infinity;
+    lines.forEach(l => { l.y = sy(l.v * 100); l.ly = Math.max(l.y + 4, prev + 14); prev = l.ly; });
+    lines.forEach(l => {
+      const [c, dash, w] = LINE[l.m.key] || ['var(--ref-ink)', '4 3', 1.4], on = l.m.key === sel;
+      const tip = `<b>${U.esc(l.m.name)}</b> · baseline<br>${task === 'avg' ? 'Average' : bname(task)}: <b>${U.pct(l.v, 2)}</b>` +
+        (l.m.key === 'hsota' && task !== 'avg' ? `<br>method: ${l.m.r.method[task]}` : '') + (l.m.key !== 'ref' ? vsRef(l.v) : '');
+      const name = l.m.key === 'hsota' ? 'Human-SOTA' : l.m.name;
+      g += `<g class="bar bl" data-k="${l.m.key}" data-tip="${tip.replace(/"/g, '&quot;')}">
+        <line x1="${L}" x2="${W - 6}" y1="${l.y}" y2="${l.y}" stroke="transparent" stroke-width="10"/>
+        <line x1="${L}" x2="${x1 + 4}" y1="${l.y}" y2="${l.y}" stroke="${c}" stroke-width="${on ? w + 1.2 : w}" stroke-dasharray="${dash}"/>
+        ${Math.abs(l.ly - 4 - l.y) > 1 ? `<path d="M${x1 + 4},${l.y} L${x1 + 9},${l.ly - 4}" stroke="${c}" fill="none" stroke-width="1"/>` : ''}
+        <text x="${x1 + 11}" y="${l.ly}" style="fill:${on ? 'var(--primary)' : c};font-weight:600">${name} ${(l.v * 100).toFixed(1)}</text></g>`;
+    });
+    g += `<line class="axisl" x1="${L}" x2="${x1}" y1="${sy(0)}" y2="${sy(0)}"/>`;
     host.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" style="min-width:${W}px">${g}</svg>`;
     host.querySelectorAll('.bar').forEach(el => el.onclick = () => { sel = el.dataset.k; renderMain(); renderDetail(); });
     U.bindTips(host);
-    $('.js-hint').textContent = reader === 'avg' ? 'Whiskers span the lowest to highest score across the five answering models. Click a bar for details.' : 'Click a bar for details. Human-SOTA is reported only as the mean over the five answering models.';
+    $('.js-hint').textContent = (reader === 'avg' ? 'Bars: agent-built systems; whiskers span the lowest to highest score across the five answering models. Dashed lines: baselines.' : 'Bars: agent-built systems; dashed lines: baselines. Human-SOTA is reported only as the mean over the five answering models.') + ' Click a bar or a line for details.';
   }
 
   function renderDetail() {
