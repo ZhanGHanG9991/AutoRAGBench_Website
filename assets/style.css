@@ -129,10 +129,10 @@ select.sel { font: 500 13px var(--sans); color: var(--ink); background: var(--su
 .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .lb-chart { min-width: 760px; padding: 8px 10px 0; }
 svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
-svg.chart text { font: 11px var(--sans); fill: var(--muted); }
-svg.chart .num { font: 600 11.5px var(--mono); fill: var(--ink); }
-svg.chart .lbl { font: 600 11.5px var(--sans); fill: var(--ink); }
-svg.chart .sub { font: 10.5px var(--sans); fill: var(--faint); }
+svg.chart text { font: 12.5px var(--sans); fill: var(--muted); }
+svg.chart .num { font: 600 13px var(--mono); fill: var(--ink); }
+svg.chart .lbl { font: 600 13px var(--sans); fill: var(--ink); }
+svg.chart .sub { font: 12px var(--sans); fill: var(--faint); }
 svg.chart .gridl { stroke: var(--grid); }
 svg.chart .axisl { stroke: var(--line2); }
 svg.chart .bar { cursor: pointer; transition: opacity .15s; }
@@ -225,11 +225,11 @@ table.tasks .ct { font-size: 13px; color: var(--muted); min-width: 120px; }
 .fig .cap { margin-top: auto; padding-top: 12px; font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); }
 .fig .cap b { color: var(--ink); }
 .fig .ctrl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
-.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin: 6px 0 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; color: var(--muted); margin: 6px 0 4px; }
 .legend span { display: inline-flex; gap: 6px; align-items: center; cursor: default; }
 .legend .tog { cursor: pointer; user-select: none; }
 .legend .tog.off { opacity: .35; }
-.legend .grp { font: 600 12px var(--sans); color: var(--faint); }
+.legend .grp { font: 600 13px var(--sans); color: var(--faint); }
 .legend.agents { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; align-items: start; }
 .legend.agents .items { display: flex; flex-wrap: wrap; gap: 4px 14px; }
 .legend.agents .grp { padding-top: 1px; white-space: nowrap; }

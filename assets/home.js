@@ -8,7 +8,7 @@
   // Human-SOTA has only five-answering-model means, so it is shown under "Mean of all five" only
   const shown = rd => all.filter(m => rd === 'avg' || !(m.r && m.r.avg_only));
   const fill = m => m.a ? U.col(m.a) : m.key === 'hsota' ? 'var(--hs)' : m.key === 'ref' ? 'var(--ref-ink)' : 'var(--ref)';
-  const tw = (s, px = 6.6) => s.length * px;   // rough SVG text width
+  const tw = (s, px = 7.4) => s.length * px;   // rough SVG text width
 
   // ---------------- hero glance ----------------
   U.onRender(() => {
@@ -67,7 +67,7 @@
 
   function renderMain() {
     const host = $('.js-main');
-    const W = Math.max(760, (host.clientWidth || 780) - 20), H = 400, L = 44, Rm = 150, T = 30, Bm = 74;
+    const W = Math.max(760, (host.clientWidth || 780) - 20), H = 420, L = 48, Rm = 178, T = 30, Bm = 84;
     const vis = shown(reader);
     const rows = vis.filter(m => m.a).map(m => {
       const v = U.val(m.sc, task, reader);
@@ -98,15 +98,15 @@
       }
       const ly = (reader === 'avg' ? sy(r.hi * 100) : y) - 8;
       g += `<text class="num" x="${cx}" y="${ly}" text-anchor="middle" style="paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round">${U.pct(r.v)}</text>`;
-      const nm = splitName(r.m.name, Math.floor(band / 7.2));
-      nm.forEach((s, j) => g += `<text class="lbl" x="${cx}" y="${sy(0) + 18 + j * 14}" text-anchor="middle" ${on ? 'style="fill:var(--primary)"' : ''}>${U.esc(s)}</text>`);
-      g += `<text class="sub" x="${cx}" y="${sy(0) + 18 + nm.length * 14}" text-anchor="middle">${band < 90 ? (short[r.m.sub] || r.m.sub) : r.m.sub}</text>`;
+      const nm = splitName(r.m.name, Math.floor(band / 8.2));
+      nm.forEach((s, j) => g += `<text class="lbl" x="${cx}" y="${sy(0) + 20 + j * 16}" text-anchor="middle" ${on ? 'style="fill:var(--primary)"' : ''}>${U.esc(s)}</text>`);
+      g += `<text class="sub" x="${cx}" y="${sy(0) + 20 + nm.length * 16}" text-anchor="middle">${band < 90 ? (short[r.m.sub] || r.m.sub) : r.m.sub}</text>`;
       if (on) g += `<path d="M${cx - 6},${H - 4} l6,-7 l6,7 z" fill="var(--primary)"/>`;
       g += `</g>`;
     });
     // baseline lines; labels sit right of the plot, nudged apart when values are close
     let prev = -Infinity;
-    lines.forEach(l => { l.y = sy(l.v * 100); l.ly = Math.max(l.y + 4, prev + 14); prev = l.ly; });
+    lines.forEach(l => { l.y = sy(l.v * 100); l.ly = Math.max(l.y + 5, prev + 17); prev = l.ly; });
     lines.forEach(l => {
       const [c, dash, w] = LINE[l.m.key] || ['var(--ref-ink)', '4 3', 1.4], on = l.m.key === sel;
       const tip = `<b>${U.esc(l.m.name)}</b> · baseline<br>${task === 'avg' ? 'Average' : bname(task)}: <b>${U.pct(l.v, 2)}</b>` +
@@ -115,8 +115,8 @@
       g += `<g class="bar bl" data-k="${l.m.key}" data-tip="${tip.replace(/"/g, '&quot;')}">
         <line x1="${L}" x2="${W - 6}" y1="${l.y}" y2="${l.y}" stroke="transparent" stroke-width="10"/>
         <line x1="${L}" x2="${x1 + 4}" y1="${l.y}" y2="${l.y}" stroke="${c}" stroke-width="${on ? w + 1.2 : w}" stroke-dasharray="${dash}"/>
-        ${Math.abs(l.ly - 4 - l.y) > 1 ? `<path d="M${x1 + 4},${l.y} L${x1 + 9},${l.ly - 4}" stroke="${c}" fill="none" stroke-width="1"/>` : ''}
-        <text x="${x1 + 11}" y="${l.ly}" style="fill:${on ? 'var(--primary)' : c};font-weight:600">${name} ${(l.v * 100).toFixed(1)}</text></g>`;
+        ${Math.abs(l.ly - 5 - l.y) > 1 ? `<path d="M${x1 + 4},${l.y} L${x1 + 9},${l.ly - 5}" stroke="${c}" fill="none" stroke-width="1"/>` : ''}
+        <text x="${x1 + 11}" y="${l.ly}" style="fill:${on ? 'var(--primary)' : c};font-weight:600;font-size:14px">${name} ${(l.v * 100).toFixed(1)}</text></g>`;
     });
     g += `<line class="axisl" x1="${L}" x2="${x1}" y1="${sy(0)}" y2="${sy(0)}"/>`;
     host.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" style="min-width:${W}px">${g}</svg>`;
@@ -374,7 +374,7 @@
       g += `<path data-tip="<b>DeepSeek V4.1 Flash</b> · ${bname(t)}<br>${s.toFixed(1)} → ${d.toFixed(1)} (${U.sgn(d - s)})" d="M${sx(d) - 6},${y + 9} h12 l-6,10 z" fill="${cD}"/>`;
       g += `<circle data-tip="<b>GPT-6.1 Sol</b> · ${bname(t)}<br>${s.toFixed(1)} → ${q.toFixed(1)} (${U.sgn(q - s)})" cx="${sx(q)}" cy="${y + 28.5}" r="6" fill="${cG}"/>`;
       const halo = 'paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round';
-      g += `<text class="num" x="${sx(d) + 9}" y="${y + 18}" style="font-weight:500;font-size:11px;${halo}">${U.sgn(d - s)}</text><text class="num" x="${sx(q) + 10}" y="${y + 32}" style="font-size:11px;${halo}">${U.sgn(q - s)}</text>`;
+      g += `<text class="num" x="${sx(d) + 9}" y="${y + 18}" style="font-weight:500;font-size:12.5px;${halo}">${U.sgn(d - s)}</text><text class="num" x="${sx(q) + 10}" y="${y + 32}" style="font-size:12.5px;${halo}">${U.sgn(q - s)}</text>`;
       g += `<circle data-tip="<b>${G.method[t]}</b> start package · ${bname(t)}: ${s.toFixed(1)}" cx="${sx(s)}" cy="${y + 21.5}" r="6" fill="var(--surface)" stroke="var(--ref-ink)" stroke-width="2"/>`;
       const mt = G.method[t], fits = sx(s) - 10 - tw(mt, 5.6) > L + 4;
       g += fits ? `<text x="${sx(s) - 10}" y="${y + 25}" text-anchor="end" class="sub" style="${halo}">${mt}</text>`
@@ -401,7 +401,7 @@
       });
       const rf = D.human.ref[t];
       g += `<line data-tip="Reference RAG · ${bname(t)}: ${rf.toFixed(1)}" x1="${x0 - 3}" x2="${x0 + 3 * bw + 1}" y1="${sy(rf)}" y2="${sy(rf)}" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="3 2" opacity=".6"/>`;
-      g += `<text class="lbl" x="${x0 + 1.5 * bw}" y="${H - 14}" text-anchor="middle" style="font-size:11px">${bname(t)}</text>`;
+      g += `<text class="lbl" x="${x0 + 1.5 * bw}" y="${H - 14}" text-anchor="middle" style="font-size:12.5px">${bname(t)}</text>`;
     });
     g += `<line class="axisl" x1="${L}" x2="${W - Rm}" y1="${sy(0)}" y2="${sy(0)}"/>`;
     host.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
