@@ -10,6 +10,16 @@
   const fill = m => m.a ? U.col(m.a) : m.key === 'hsota' ? 'var(--hs)' : m.key === 'ref' ? 'var(--ref-ink)' : 'var(--ref)';
   const tw = (s, px = 6.6) => s.length * px;   // rough SVG text width
 
+  // ---------------- hero glance ----------------
+  U.onRender(() => {
+    const top = [...D.agents].sort((x, y) => U.macro(y.scores, 'avg') - U.macro(x.scores, 'avg')).slice(0, 3);
+    const rows = [...top.map(a => ({ n: a.model, v: U.macro(a.scores, 'avg'), c: U.col(a) })),
+      ...[ref, hs, bm25, cb].map(r => ({ n: r.key === 'hsota' ? 'Human-SOTA' : r.name, v: U.macro(r.scores, 'avg'), c: r.key === 'hsota' ? 'var(--hs)' : r.key === 'ref' ? 'var(--ref-ink)' : 'var(--ref)', base: true }))];
+    const el = $('.js-glance');
+    el.innerHTML = rows.map(r => `<div class="row${r.base ? ' base' : ''}"><span>${r.n}</span><div class="track"><div class="fill" style="background:${r.c}" data-w="${r.v / 0.6 * 100}"></div></div><b>${U.pct(r.v)}</b></div>`).join('');
+    requestAnimationFrame(() => requestAnimationFrame(() => el.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w + '%')));
+  });
+
   // greedy label placement around points: right, left, above, below
   function place(items, W, L, H) {
     const boxes = items.map(p => ({ x0: p.cx - p.r, x1: p.cx + p.r, y0: p.cy - p.r, y1: p.cy + p.r }));
