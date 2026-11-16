@@ -41,7 +41,7 @@
     for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end">${v.toFixed(2)}</text>`;
     for (let t = 0; t <= 360; t += 60) g += `<text x="${sx(t)}" y="${H - Bt + 16}" text-anchor="middle">${t / 60}h</text>`;
     g += `<text x="${W - R}" y="${H - 4}" text-anchor="end">build time →</text><text x="${L}" y="${H - 4}">${b.metric}</text>`;
-    g += `<line x1="${L}" x2="${W - R}" y1="${sy(test)}" y2="${sy(test)}" stroke="var(--accent)" stroke-dasharray="5 4"/><text x="${W - R}" y="${sy(test) - 5}" text-anchor="end" style="fill:var(--accent)">hidden test ${U.pct(test)}</text>`;
+    g += `<line x1="${L}" x2="${W - R}" y1="${sy(test)}" y2="${sy(test)}" stroke="var(--primary)" stroke-dasharray="5 4"/><text x="${W - R}" y="${sy(test) - 5}" text-anchor="end" style="fill:var(--primary)">hidden test ${U.pct(test)}</text>`;
     g += `<polyline points="${c.map(p => `${sx(p[0])},${sy(p[1])}`).join(' ')}" fill="none" stroke="var(--k-sc)" stroke-width="1.6" opacity=".7"/>`;
     c.forEach(p => g += `<circle data-tip="<b>${U.hmTime(p[0])}</b><br>${U.esc(p[2])}" cx="${sx(p[0])}" cy="${sy(p[1])}" r="4.5" fill="var(--k-sc)" stroke="var(--surface)" stroke-width="1.5"/>`);
     const el = $('.js-curve');
