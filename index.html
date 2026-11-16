@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AutoRAGBench</title>
-<meta name="description" content="AutoRAGBench evaluates how well LLM agents build retrieval-augmented generation systems from scratch: nine tasks, nine agent configurations, five held-out answering models.">
-<meta property="og:title" content="AutoRAGBench">
-<meta property="og:description" content="Can LLM agents build RAG systems from scratch? Nine tasks, nine agents, six hours on one H800 each.">
+<meta name="description" content="AutoRAGBench: A Benchmark for LLM Agents Automating RAG System Development. Nine RAG system development tasks; agents build RAG systems from scratch under a six-hour budget on a single H800 GPU.">
+<meta property="og:title" content="AutoRAGBench: A Benchmark for LLM Agents Automating RAG System Development">
+<meta property="og:description" content="The first benchmark to evaluate how well LLM agents develop RAG systems from scratch in an open code space.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1a36'/%3E%3Crect x='7' y='17' width='4' height='8' rx='1.5' fill='%238fa8ff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1.5' fill='%238fa8ff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1.5' fill='%235ee0b0'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
@@ -19,9 +19,10 @@
   <div class="wrap">
     <a class="brand" href="./"><svg class="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#1b2d5c"/><rect x="7" y="17" width="4" height="8" rx="1.5" fill="#8fa8ff"/><rect x="14" y="12" width="4" height="13" rx="1.5" fill="#8fa8ff"/><rect x="21" y="7" width="4" height="18" rx="1.5" fill="#5ee0b0"/></svg>AutoRAGBench</a>
     <div class="nav-links">
+      <a href="#abstract">Abstract</a>
       <a href="#leaderboard">Leaderboard</a>
       <a href="#benchmark">Benchmark</a>
-      <a href="#findings">Findings</a>
+      <a href="#findings">Results</a>
       <a href="traces/">Traces</a>
     </div>
     <a class="icon-btn js-github" href="#" title="GitHub" aria-label="GitHub"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
@@ -31,22 +32,25 @@
 
 <header class="hero">
   <div class="wrap">
-    <div>
-      <span class="eyebrow">Benchmark · LLM agents · RAG engineering</span>
-      <h1>Auto<span class="grad">RAG</span>Bench</h1>
-      <p class="tag">How well can LLM agents build retrieval-augmented generation systems on their own?</p>
-      <p class="lede">Each agent gets a raw corpus, labeled training questions, one H800 GPU and six hours — no starter code and no prescribed pipeline. The frozen system then retrieves evidence for a hidden test set, and five held-out answering models answer from it.</p>
-      <div class="btns">
-        <a class="btn primary" href="#leaderboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 20V10M12 20V4M18 20v-7"/></svg>Leaderboard</a>
-        <a class="btn" href="traces/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Browse traces</a>
-        <a class="btn js-paper" href="#" aria-disabled="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg><span>Paper (coming soon)</span></a>
-        <a class="btn js-github" href="#"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
-      </div>
+    <h1><span class="name">AutoRAGBench</span>: A Benchmark for LLM Agents<br>Automating RAG System Development</h1>
+    <p class="authors js-team">Anonymous Authors</p>
+    <p class="affil">Under review</p>
+    <div class="btns">
+      <a class="btn js-paper" href="#" aria-disabled="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg><span>Paper (coming soon)</span></a>
+      <a class="btn js-github" href="#"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Code</a>
+      <a class="btn" href="#leaderboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 20V10M12 20V4M18 20v-7"/></svg>Leaderboard</a>
+      <a class="btn" href="traces/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Trajectories</a>
     </div>
-    <div class="glance">
-      <h4>Average score · 9 tasks × 5 answering models</h4>
-      <div class="js-glance"></div>
-      <div class="gk"><div><b>9</b>tasks</div><div><b>9</b>agents</div><div><b>5</b>answering models</div><div><b>6 h</b>per build</div></div>
+    <figure class="teaser">
+      <img src="assets/pipeline.png" alt="AutoRAGBench pipeline: (a) task instance, (b) agent builds the RAG system, (c) offline evaluation." width="2504" height="930">
+      <figcaption><b>Figure 1.</b> AutoRAGBench pipeline.</figcaption>
+    </figure>
+    <div class="abstract" id="abstract">
+      <h2>Abstract</h2>
+      <p>Retrieval-augmented generation (RAG) is a well-established paradigm for augmenting large language models (LLMs) with information retrieved from external corpora. However, developing effective RAG systems requires substantial engineering effort and iterative experimentation, as effective design choices vary across tasks and domains. With rapid advances in LLM agent capabilities, we ask how well these agents can autonomously build RAG systems and how effectively they can improve them through iteration. In this paper, we propose AutoRAGBench, the first benchmark to evaluate how well LLM agents develop RAG systems from scratch in an open code space. It comprises nine RAG system development tasks. For each task, agents build RAG systems from scratch without starter code or prescribed strategies, under a six-hour budget on a single H800 GPU. They analyze task data, implement RAG pipelines, and iteratively refine their designs based on experimental feedback. We evaluate nine agent configurations and analyze both the effectiveness of the resulting RAG systems and their development trajectories. GPT-6.1 Sol with Codex CLI achieves the highest average score of 56.1. The composite Human-SOTA baseline averages 44.4. These results show that LLM agents can automate effective RAG system development. When starting from a human-designed system on each of seven tasks, GPT-6.1 Sol with Codex CLI improves the score by 16.6 points on average while preserving the methods' core mechanisms.</p>
+    </div>
+    <div class="findings-box">
+      <p><b>Our findings.</b> GPT-6.1 Sol with Codex CLI achieves the highest average answer accuracy across nine tasks, 56.1 points. It exceeds Reference RAG by 9.7 points and the composite Human-SOTA baseline under our protocol by 11.7 points. It also improves seven existing human-designed systems by 16.6 points on average while preserving their core mechanisms. In our adapted comparisons, it also outperforms automated searches over predefined RAG pipelines, including a search driven by the same LLM. Across 77 builds with comparable development scores, 72 reach scores at least one point above their first version. The median first-to-last gain is 5.5 points. Yet 20 builds have last observed development scores at least one point below their best. Larger development gains do not always correspond to higher hidden-test answer accuracy.</p>
     </div>
   </div>
 </header>
@@ -54,8 +58,9 @@
 <section class="block" id="leaderboard">
   <div class="wrap">
     <div class="sec-head">
-      <div><span class="eyebrow">01 · Leaderboard</span><h2>Agent-built RAG systems vs. reference pipelines</h2></div>
-      <p>One six-hour build per agent and task, no repeats and no best-of-n. Scores are primary metrics ×100. Click any bar to see that system task by task.</p>
+      <h2>Main Results</h2>
+      <p>Scores are primary metrics ×100 averaged over five held-out answering models; Avg is the mean over the nine tasks. GPT-6.1 Sol with Codex CLI achieves the highest average, 56.1, and the best score on seven tasks. All nine agent configurations outperform naive BM25 RAG, and seven outperform the reference system. The composite Human-SOTA baseline averages 44.4, below all nine agent configurations.</p>
+      <p class="hint">Click any bar for that system's per-task scores.</p>
     </div>
     <div class="card lb-card">
       <div class="controls">
@@ -69,29 +74,31 @@
     <div class="card" style="margin-top:18px">
       <div class="scroll-x"><table class="heat js-table"></table></div>
     </div>
-    <p class="note" style="margin-top:10px">Full results under the selected answering model. Bold blue marks the best agent on each task; Avg is the equal-weight mean over the nine tasks.</p>
+    <p class="figcap"><b>Table.</b> Main results, ranked by average score. Bold marks the best score on each task. The composite Human-SOTA is a per-task envelope over the adapted human-designed implementations, not a single deployable system or an upper bound on human-designed RAG; it has scores averaged over the five answering models only.</p>
   </div>
 </section>
 
 <section class="block alt" id="benchmark">
   <div class="wrap">
     <div class="sec-head">
-      <div><span class="eyebrow">02 · Benchmark</span><h2>Build from scratch, freeze, then evaluate on hidden questions</h2></div>
-      <p>Every credit comes from the evidence a system retrieves: the same evidence goes to five answering models that the agent never sees, and their answers never feed back.</p>
+      <h2>AutoRAGBench</h2>
+      <p>We assign each agent a target benchmark and provide the benchmark's external knowledge source and question–answer examples from its training split. Each agent operates in a clean container with one H800 GPU and internet access during development. The agent has six hours to build an accurate and efficient RAG system from scratch, without starter code and prescribed designs.</p>
     </div>
-    <div class="steps5">
-      <div class="s"><span class="n">1</span><h4>Task</h4><ul><li>External knowledge source (corpus or KG)</li><li>Labeled training questions</li><li>README with rules and a <code>self_check</code> tool</li></ul><span class="tagline">hidden test never mounted</span></div>
-      <div class="s"><span class="n">2</span><h4>Build</h4><ul><li>Isolated container, one H800, 6 h</li><li>Internet for packages and models</li><li>Fixed generator Qwen3.5-4B through a logged gateway</li></ul><span class="tagline">agent designs everything</span></div>
-      <div class="s"><span class="n">3</span><h4>Freeze &amp; audit</h4><ul><li>Workspace frozen at the deadline</li><li>LLM judges check API use, data lookup, integrity and rules</li><li>Failing runs get the Naive BM25 RAG score</li></ul><span class="tagline">rules enforced</span></div>
-      <div class="s"><span class="n">4</span><h4>Retrieve once</h4><ul><li><code>POST /retrieve</code> per hidden question</li><li>≤ 4 generator calls, 32K tokens, 60 s</li><li>Verbatim, provenance-checked evidence</li></ul><span class="tagline">evidence sealed</span></div>
-      <div class="s"><span class="n">5</span><h4>Score</h4><ul><li>Five answering models, temperature 0</li><li>Score averaged over models, then tasks</li><li>Mean retrieval latency reported</li></ul><span class="tagline">accuracy + latency</span></div>
+    <div class="pgrid">
+      <div class="card"><h4>Task Suite</h4><p>The task suite in AutoRAGBench consists of nine benchmarks spanning open-domain question answering (QA), document-based multi-hop QA, domain-specific QA, fact verification, and knowledge-graph QA. For each benchmark, we retain up to 10,000 training examples and 1,000 test examples to ensure comparable evaluation scales across tasks.</p></div>
+      <div class="card"><h4>System Development Protocol</h4><p>Each build runs in a clean and isolated container, with no persistent agent memory carried over between runs. The test set remains outside the container and unavailable to the agent during development. Agents build RAG systems from scratch, without starter code, a prescribed pipeline, or a predefined configuration space. Given a question, each system must return an ordered list of evidence spans from the supplied corpus.</p></div>
+      <div class="card"><h4>Anti-Cheating Checks</h4><p>We audit development trajectories and submitted RAG systems for the use of additional corpora, downloads of benchmark test sets, and other rule violations. When we confirm a violation, we rerun the experiment to give the agent another chance to develop a compliant RAG system. If the new system passes the audit, we evaluate it; otherwise, we assign the run the naive BM25 RAG baseline score.</p></div>
+      <div class="card"><h4>RAG System Evaluation</h4><p>For each test question, five answering models independently generate answers from the same evidence retrieved by the system. We report the downstream answer score and retrieval latency of the system. Per question, the gateway allows at most four Qwen3.5-4B calls and 32,000 total tokens within 60 seconds. The service cannot access the five held-out answering models.</p></div>
     </div>
     <div class="two-col">
-      <div class="card"><div class="scroll-x"><table class="tasks js-tasks"></table></div></div>
+      <div>
+        <div class="card"><div class="scroll-x"><table class="tasks js-tasks"></table></div></div>
+        <p class="figcap"><b>Table.</b> Task suite statistics and evaluation metrics.</p>
+      </div>
       <div class="side">
-        <div class="card"><h4>Agents · native or common harness</h4><div class="js-agentpills"></div></div>
-        <div class="card"><h4>Answering models</h4><div class="js-readerpills"></div></div>
-        <div class="card"><h4>Reference systems</h4><dl class="js-refs"></dl></div>
+        <div class="card"><h4>Evaluated LLM Agents</h4><p>Whenever available, we use the native agent harness developed by each LLM provider. When a native harness is unavailable, we use a harness commonly paired with the model.</p><div class="js-agentpills"></div></div>
+        <div class="card"><h4>Answering Models</h4><p>We select models from four families with different parameter counts to assess the robustness of system comparisons across answering models.</p><div class="js-readerpills"></div></div>
+        <div class="card"><h4>Baselines</h4><dl class="js-refs"></dl></div>
       </div>
     </div>
   </div>
@@ -100,75 +107,76 @@
 <section class="block" id="findings">
   <div class="wrap">
     <div class="sec-head">
-      <div><span class="eyebrow">03 · Findings</span><h2>What the 81 builds show</h2></div>
-      <p>Interactive versions of the paper's analyses: hover for values, click legends to filter.</p>
+      <h2>Experimental Results</h2>
+      <p>We evaluate both the RAG systems that agents build and the processes they use to develop them. We then examine whether agents can improve human-designed methods and how they compare with automated RAG frameworks.</p>
+      <p class="hint">Interactive versions of the paper's figures: hover for values, click legend entries to filter.</p>
     </div>
     <div class="fnav">
-      <a href="#f-stability">Answering models</a><a href="#f-pareto">Latency</a><a href="#f-tasks">Gains by task</a><a href="#f-strategy">Strategies</a>
-      <a href="#f-iteration">Iteration</a><a href="#f-activity">Time &amp; tokens</a><a href="#f-human">Improving Human-SOTA</a><a href="#f-frameworks">AutoRAG frameworks</a>
+      <a href="#f-stability">Stability</a><a href="#f-pareto">Efficiency</a><a href="#f-tasks">Gains across tasks</a><a href="#f-strategy">Strategies</a>
+      <a href="#f-iteration">Feedback and iteration</a><a href="#f-activity">Resource allocation</a><a href="#f-human">Improving human-designed methods</a><a href="#f-frameworks">Automated RAG frameworks</a>
     </div>
     <div class="fgrid">
       <div class="card fig" id="f-stability">
-        <span class="fl">Figure A · Stability</span>
-        <h3>The ranking holds across answering models</h3>
-        <p class="take js-t-stab"></p>
+        <span class="fl">Stability Across Answering Models</span>
+        <h3>Nine-task average score gain over reference RAG by answering model</h3>
+        <p class="take">GPT-6.1 Sol ranks first under all five answering models, and the top four configurations keep identical ranks. The lines stay nearly parallel: the gap between the best and worst configurations remains 10.2 to 10.7 points. The lead over the reference system changes more, with a mean of 1.5 to 5.9 points and six to nine configurations above it.</p>
         <div class="js-stab"></div>
-        <div class="legend js-stab-leg"></div>
-        <p class="cap">Each line: a configuration's nine-task average under one answering model minus Reference RAG's average under the same model. Answering models are ordered by Reference RAG score. Click a legend entry to highlight it.</p>
+        <div class="legend agents js-stab-leg"></div>
+        <p class="cap">Each line plots a configuration's nine-task average under one answering model, minus the reference system's average under the same answering model. Click a legend entry to highlight it.</p>
       </div>
       <div class="card fig" id="f-pareto">
-        <span class="fl">Figure B · Efficiency</span>
-        <h3>Higher scores cost retrieval latency</h3>
-        <p class="take js-t-pareto"></p>
+        <span class="fl">Efficiency</span>
+        <h3>Average score vs. mean retrieval latency</h3>
+        <p class="take">Every agent-built system takes longer on average to retrieve evidence than Reference RAG. Mean retrieval latency ranges from 0.50 to 2.01 seconds per question. This is 1.4 to 5.8 times the reference system's mean of 0.35 seconds. Naive BM25 RAG, Reference RAG, and Gemini 3.8 Flash with OpenCode lie on the Pareto frontier. The three Sol configurations with Codex CLI also lie on it.</p>
         <div class="js-pareto"></div>
-        <p class="cap">Mean retrieval latency per hidden test question, including generator calls, averaged over questions and then over the nine tasks. Dashed: Pareto frontier; shaded: dominated region; hollow marks are dominated. Closed-book (25.3) does not retrieve.</p>
+        <p class="cap">The dashed line marks the Pareto frontier. We measure retrieval latency from receiving the question to returning the evidence. It excludes final answer generation by the answering model.</p>
       </div>
       <div class="card fig wide" id="f-tasks">
-        <span class="fl">Figure C · Gains by task</span>
-        <h3>Gains concentrate on knowledge-graph tasks and HotpotQA</h3>
-        <p class="take js-t-tasks"></p>
+        <span class="fl">Main Results · per task</span>
+        <h3>Gains over the reference system on each task</h3>
+        <p class="take">On WebQSP, all nine configurations outperform the reference system, by 14.1 points on average. Seven also outperform it on CWQ, with a maximum gain of 27.3 points. All configurations improve on the reference system on the two domain-specific tasks, PubMedQA and QASPER. On HotpotQA, the best configuration gains 13.0 points, but only three outperform the reference system. On NQ and FEVER, the largest gain is only 1.5 points on each task.</p>
         <div class="js-tasks-chart"></div>
-        <div class="legend js-tasks-leg"></div>
-        <p class="cap">Each dot is one agent's score minus Reference RAG on that task (mean of five answering models). Grey diamond: Naive BM25 RAG.</p>
+        <div class="legend agents js-tasks-leg"></div>
+        <p class="cap">Drawn from the main results table: each dot is one configuration's score minus Reference RAG on that task. Diamond: Naive BM25 RAG; square: composite Human-SOTA.</p>
       </div>
       <div class="card fig wide" id="f-strategy">
-        <span class="fl">Figure D · Strategies</span>
-        <h3>Agents adapt the architecture to the task</h3>
-        <p class="take">All 18 knowledge-graph systems traverse the graph, all nine QASPER systems rank within the target paper, and query rewriting concentrates on NQ, HotpotQA and MuSiQue. Most systems pair classic indexes with a reranker; LLM-generated index content is rare.</p>
+        <span class="fl">Strategies in the Final Systems</span>
+        <h3>Strategy use by task</h3>
+        <p class="take">Most systems combine classic indexes with a reranker: 63 use a sparse index, 58 use dense vectors, and 58 use a reranker, of which 27 are fine-tuned. LLM use at indexing time is rare: only three systems index LLM-generated content, and only one uses a hypothetical document. Designs change markedly with the task. All 18 knowledge-graph systems traverse the graph and return selected lines or paths, and 12 of them use no reranker; all nine QASPER systems rank within the identified paper; and eight FEVER systems use no dense vectors.</p>
         <div class="scroll-x"><table class="strat js-strat"></table></div>
-        <p class="cap">Each cell counts the nine agent configurations whose final system for that task uses the strategy; Share is over all 81 systems. "Single" groups are mutually exclusive; "multi" groups can combine. Retrieval flow excludes the 18 graph-traversal systems.</p>
+        <p class="cap">Cells count systems out of nine per task. Shares use all 81 systems except for retrieval flow, which excludes the 18 graph-traversal systems. Multi-choice groups can exceed 100%. A second coder has yet to verify the labels.</p>
       </div>
       <div class="card fig wide" id="f-iteration">
-        <span class="fl">Figure E · Iteration</span>
-        <h3>Agents keep improving late into the six hours</h3>
-        <p class="take">Builds first reach their best development score after a median of 4.0 hours. Of 77 builds with at least two versions, 72 improve on their first by at least one point, but 20 end at least one point below their own best: the benchmark evaluates the workspace at the deadline, so keeping the best version is the agent's job.</p>
-        <div class="legend js-iter-leg"></div>
+        <span class="fl">Feedback and Iteration</span>
+        <h3>Iteration curves for four Codex CLI configurations</h3>
+        <p class="take">Across the nine configurations, 77 builds had at least two observed versions. Their median net gain in development score from the first to the last observed version was 5.5 points. The last observed version matched the observed peak in 46 builds and fell at least one point below it in 20. In all, 72 of the 77 builds (93.5%) improved on their first score by at least one point at some stage, and the median time to the first peak was 4.0 hours into the six-hour budget.</p>
+        <div class="legend agents js-iter-leg"></div>
         <div class="sm-grid js-iter"></div>
-        <p class="cap">Each line is one build, scored on a fixed set of its own development questions; a point appears when the evidence for those questions changes. Y: gain since the build's first version (separate scale per task). Star: first version reaching the build's best. Question sets differ across agents, so curves show observed progress, not hidden-test generalization.</p>
+        <p class="cap">Each curve shows the change in Qwen3.5-4B score from the first evaluated version on a fixed set of questions for that build. Axis scales vary by task. Stars mark the earliest maximum. Click a legend entry to add or remove a configuration.</p>
       </div>
       <div class="card fig wide" id="f-activity">
-        <span class="fl">Figure F · Development activity</span>
-        <h3>Most of the budget goes to verification, not construction</h3>
-        <p class="take">For the four Codex CLI configurations, Test and Analyze take 57%–87% of build time and 55%–70% of output tokens. Stronger models in this family do not iterate more often — they write more per iteration.</p>
+        <span class="fl">Development Resource Allocation</span>
+        <h3>Codex CLI development activity</h3>
+        <p class="take">Testing and analysis took most of the development budget in these builds. Averaged over nine tasks, these activities accounted for 57–87% of build time and 55–70% of output tokens. In thousands of tokens, median output per round was 11.0 for GPT-6.1 Sol, 5.8 for GPT-6 Sol, 3.9 for GPT-5.6 Sol, and 2.5 for GPT-5.6 Luna. This order matches the mean score ranking in the main results table.</p>
         <div class="legend js-act-leg"></div>
         <div class="act-grid js-act"></div>
-        <p class="cap">Left: share of build time per activity in each 15-minute interval, equal weight per build. Right: output tokens per hour (thousands) on a common scale. Both average the nine tasks and omit the final 15 minutes. Rounds and tokens are medians per build; a round is a change to the system followed by a launched evaluation.</p>
+        <p class="cap">Panels show each activity's share of build time and output tokens per hour, averaged across nine tasks. We count a round when an agent edits or rebuilds the system and then launches an evaluation.</p>
       </div>
       <div class="card fig" id="f-human">
-        <span class="fl">Figure G · Improving Human-SOTA</span>
-        <h3>Agents improve every human-designed starting point</h3>
-        <p class="take js-t-human"></p>
+        <span class="fl">Improving Human-Designed Methods</span>
+        <h3>Agent gains over human-designed systems</h3>
+        <p class="take">GPT-6.1 Sol gains 7.4 to 26.4 points, with a mean of 16.6. DeepSeek gains 3.9 to 12.1 points, with a mean of 8.9. GPT-6.1 Sol scores higher on all seven tasks.</p>
         <div class="js-human"></div>
         <div class="legend js-human-leg"></div>
-        <p class="cap">Hollow circle: starting package (method unchanged, only the retrieval interface added). Bars run to the hidden-test score after six hours of agent development. Thin tick: Reference RAG. *HotpotQA starts from HyDE, the strongest reproduction that runs under the protocol.</p>
+        <p class="cap">Labels give score gains averaged over five answering models after six hours. We use HippoRAG 2 for MuSiQue, LightRAG for MH-RAG, RAPTOR for QASPER, SubgraphRAG for WebQSP and CWQ, and HyDE for PubMedQA and HotpotQA.</p>
       </div>
       <div class="card fig" id="f-frameworks">
-        <span class="fl">Figure H · Automated RAG frameworks</span>
-        <h3>Searching predefined modules trails writing new code</h3>
-        <p class="take js-t-fw"></p>
+        <span class="fl">Comparison with Automated RAG Frameworks</span>
+        <h3>Automated RAG frameworks against GPT-6.1 Sol builds from scratch</h3>
+        <p class="take">The agent outperforms every delivered framework system. On the six tasks both frameworks complete, AutoRAG averages 44.5 and FlashRAG averages 43.6. The agent averages 57.0, and Reference RAG averages 45.0.</p>
         <div class="js-fw"></div>
         <div class="legend js-fw-leg"></div>
-        <p class="cap">Hidden-test scores of the configurations selected by Agentic AutoRAG (GPT-6.1 Sol as optimizer) and FlashRAG under a six-hour budget, against GPT-6.1 Sol's build from scratch. FlashRAG produced no HotpotQA system: index construction did not finish within six hours.</p>
+        <p class="cap">Bars show hidden-test scores. FlashRAG did not finish indexing HotpotQA within six hours.</p>
       </div>
     </div>
   </div>
@@ -177,13 +185,13 @@
 <section class="block alt" style="padding:56px 0">
   <div class="wrap">
     <div class="card cta">
-      <div><h3>Watch an agent build a RAG system</h3><p>Timestamped traces of GPT-6.1 Sol on all nine tasks: commands, edits, its own reasoning notes and every <code style="color:#fff">self_check</code> score along the way.</p></div>
-      <a class="btn" href="traces/">Browse traces →</a>
+      <div><h3>Development Trajectories</h3><p>As an agent develops its RAG system, we record its actions and observations at each step. We call this sequence of records the run's development trajectory. Browse the condensed trajectories of GPT-6.1 Sol with Codex CLI on all nine tasks.</p></div>
+      <a class="btn" href="traces/">Browse trajectories →</a>
     </div>
   </div>
 </section>
 
-<footer><div class="wrap"><span>AutoRAGBench · results version formal-v2 · fixed-evidence evaluation protocol</span><span class="js-team">Authors to be announced with the paper.</span></div></footer>
+<footer><div class="wrap"><span>AutoRAGBench: A Benchmark for LLM Agents Automating RAG System Development</span><span>Anonymous Authors · under review</span></div></footer>
 <div class="tip"></div>
 <script src="assets/data.js"></script>
 <script src="assets/common.js"></script>

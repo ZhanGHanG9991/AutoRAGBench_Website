@@ -3,8 +3,11 @@
   const $ = s => document.querySelector(s);
   const ref = D.refs.find(r => r.key === 'ref'), bm25 = D.refs.find(r => r.key === 'bm25'), cb = D.refs.find(r => r.key === 'closed_book');
   const bname = k => B.find(b => b.key === k).name;
-  const all = [...D.agents.map(a => ({ key: a.key, name: a.model, sub: a.harness, sc: a.scores, a })), ...D.refs.map(r => ({ key: r.key, name: r.name, sub: 'reference', sc: r.scores, r }))];
-  const fill = m => m.a ? U.col(m.a) : (m.key === 'ref' ? 'var(--ref-ink)' : 'var(--ref)');
+  const all = [...D.agents.map(a => ({ key: a.key, name: a.model, sub: a.harness, sc: a.scores, a })), ...D.refs.map(r => ({ key: r.key, name: r.name, sub: 'baseline', sc: r.scores, r }))];
+  const hs = D.refs.find(r => r.key === 'hsota');
+  // Human-SOTA has only five-answering-model means, so it is shown under "Mean of all five" only
+  const shown = rd => all.filter(m => rd === 'avg' || !(m.r && m.r.avg_only));
+  const fill = m => m.a ? U.col(m.a) : m.key === 'hsota' ? 'var(--hs)' : m.key === 'ref' ? 'var(--ref-ink)' : 'var(--ref)';
   const tw = (s, px = 6.6) => s.length * px;   // rough SVG text width
 
   // greedy label placement around points: right, left, above, below
@@ -25,15 +28,6 @@
     });
   }
 
-  // ---------------- hero glance ----------------
-  U.onRender(() => {
-    const rows = [...[...D.agents].sort((x, y) => U.macro(y.scores, 'avg') - U.macro(x.scores, 'avg')).slice(0, 3).map(a => ({ n: a.model, v: U.macro(a.scores, 'avg'), c: a.color_dark })),
-      { n: 'Reference RAG', v: U.macro(ref.scores, 'avg'), c: '#9aa6b8' }, { n: 'Naive BM25 RAG', v: U.macro(bm25.scores, 'avg'), c: '#6c788c' }, { n: 'Closed-book', v: U.macro(cb.scores, 'avg'), c: '#4f5b6e' }];
-    const el = $('.js-glance');
-    el.innerHTML = rows.map(r => `<div class="row"><span>${r.n}</span><div class="track"><div class="fill" style="background:${r.c}" data-w="${r.v / 0.6 * 100}"></div></div><b>${U.pct(r.v)}</b></div>`).join('');
-    requestAnimationFrame(() => requestAnimationFrame(() => el.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w + '%')));
-  });
-
   // ---------------- main chart ----------------
   let task = 'avg', reader = 'avg', sel = 'gpt61sol_codex';
   const tseg = $('.js-task');
@@ -44,7 +38,11 @@
   });
   const rsel = $('.js-reader');
   rsel.innerHTML = `<option value="avg">Mean of all five</option>` + R.map(r => `<option value="${r.key}">${r.name}</option>`).join('');
-  rsel.onchange = () => { reader = rsel.value; renderMain(); renderDetail(); renderTable(); };
+  rsel.onchange = () => {
+    reader = rsel.value;
+    if (!shown(reader).some(m => m.key === sel)) sel = 'gpt61sol_codex';
+    renderMain(); renderDetail(); renderTable();
+  };
 
   function splitName(s, maxc) {
     if (s.length <= maxc) return [s];
@@ -57,7 +55,7 @@
   function renderMain() {
     const host = $('.js-main');
     const W = Math.max(740, (host.clientWidth || 760) - 20), H = 400, L = 44, Rm = 10, T = 30, Bm = 74;
-    const rows = all.map(m => {
+    const rows = shown(reader).map(m => {
       const v = U.val(m.sc, task, reader);
       const rr = R.map(r => U.val(m.sc, task, r.key));
       return { m, v, lo: Math.min(...rr), hi: Math.max(...rr) };
@@ -73,13 +71,15 @@
       const cx = L + band * (i + 0.5), x = cx - bw / 2, y = sy(r.v * 100), h = sy(0) - y;
       const on = r.m.key === sel;
       const col = fill(r.m);
+      const avgOnly = r.m.r && r.m.r.avg_only;
       const tip = `<b>${U.esc(r.m.name)}</b> · ${r.m.sub}<br>${task === 'avg' ? 'Average' : bname(task)}: <b>${U.pct(r.v, 2)}</b>` +
-        (reader === 'avg' ? `<br>range over answering models: ${U.pct(r.lo)}–${U.pct(r.hi)}` : '') + (r.m.key !== 'ref' ? `<br>vs Reference RAG: ${U.sgn((r.v - U.val(ref.sc || ref.scores, task, reader)) * 100)}` : '');
+        (avgOnly && task !== 'avg' ? `<br>method: ${r.m.r.method[task]}` : '') +
+        (reader === 'avg' && !avgOnly ? `<br>range over answering models: ${U.pct(r.lo)}–${U.pct(r.hi)}` : '') + (r.m.key !== 'ref' ? `<br>vs Reference RAG: ${U.sgn((r.v - U.val(ref.scores, task, reader)) * 100)}` : '');
       g += `<g class="bar" data-k="${r.m.key}" data-tip="${tip.replace(/"/g, '&quot;')}">
         ${on ? `<rect x="${cx - band / 2 + 2}" y="${T - 12}" width="${band - 4}" height="${sy(0) - T + 12}" rx="8" fill="var(--primary-soft)"/>` : ''}
         <rect x="${cx - band / 2}" y="${T - 10}" width="${band}" height="${H - T + 10}" fill="transparent"/>
         <path d="M${x},${sy(0)} V${y + 5} q0,-5 5,-5 H${x + bw - 5} q5,0 5,5 V${sy(0)} Z" fill="${col}" ${r.m.r ? 'opacity=".9"' : ''}/>`;
-      if (reader === 'avg') {
+      if (reader === 'avg' && !avgOnly) {
         const y0 = sy(r.lo * 100), y1 = sy(r.hi * 100);
         g += `<g stroke="var(--ink)" stroke-width="1.2" opacity=".4"><line x1="${cx}" x2="${cx}" y1="${y0}" y2="${y1}"/><line x1="${cx - 5}" x2="${cx + 5}" y1="${y1}" y2="${y1}"/><line x1="${cx - 5}" x2="${cx + 5}" y1="${y0}" y2="${y0}"/></g>`;
       }
@@ -98,41 +98,44 @@
     host.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" style="min-width:${W}px">${g}</svg>`;
     host.querySelectorAll('.bar').forEach(el => el.onclick = () => { sel = el.dataset.k; renderMain(); renderDetail(); });
     U.bindTips(host);
-    $('.js-hint').textContent = reader === 'avg' ? 'Whiskers span the lowest to highest score across the five answering models. Click a bar for details.' : 'Click a bar for details.';
+    $('.js-hint').textContent = reader === 'avg' ? 'Whiskers span the lowest to highest score across the five answering models. Click a bar for details.' : 'Click a bar for details. Human-SOTA is reported only as the mean over the five answering models.';
   }
 
   function renderDetail() {
     const m = all.find(x => x.key === sel);
     const v = U.val(m.sc, task, reader);
-    const order = all.map(x => ({ k: x.key, v: U.val(x.sc, task, reader) })).sort((x, y) => y.v - x.v);
+    const vis = shown(reader);
+    const order = vis.map(x => ({ k: x.key, v: U.val(x.sc, task, reader) })).sort((x, y) => y.v - x.v);
     const rank = order.findIndex(x => x.k === sel) + 1;
     const dr = (v - U.val(ref.scores, task, reader)) * 100, db = (v - U.val(bm25.scores, task, reader)) * 100;
     const rr = R.map(r => U.val(m.sc, task, r.key));
+    const avgOnly = m.r && m.r.avg_only;
     const lat = m.a ? (task === 'avg' ? U.mean(B.map(b => m.a.latency[b.key])) : m.a.latency[task]) : (task === 'avg' ? m.r.latency_avg : null);
-    let chips = `<div class="chip">Rank<b>${rank} / ${all.length}</b></div>`;
-    chips += `<div class="chip">Answering-model range<b>${U.pct(Math.min(...rr))}–${U.pct(Math.max(...rr))}</b></div>`;
+    let chips = `<div class="chip">Rank<b>${rank} / ${vis.length}</b></div>`;
+    if (!avgOnly) chips += `<div class="chip">Answering-model range<b>${U.pct(Math.min(...rr))}–${U.pct(Math.max(...rr))}</b></div>`;
+    else if (task !== 'avg') chips += `<div class="chip">Method on ${bname(task)}<b>${m.r.method[task]}</b></div>`;
     if (lat != null) chips += `<div class="chip">Retrieval latency<b>${lat.toFixed(2)} s / q</b></div>`;
     if (m.a) chips += `<div class="chip">API cost, 9 builds<b>~$${m.a.cost}</b></div>`;
     if (m.a && task !== 'avg') chips += `<div class="chip">Generator calls<b>${m.a.calls[task].toFixed(2)} / q</b></div>`;
-    const dot = m.a ? `<i class="dot" style="background:${U.col(m.a)};width:14px;height:14px"></i>` : `<i class="dot" style="background:var(--ref);width:14px;height:14px"></i>`;
+    const dot = `<i class="dot" style="background:${fill(m)};width:14px;height:14px"></i>`;
     const scale = Math.max(...B.map(b => Math.max(U.score(m.sc, b.key, reader), U.score(ref.scores, b.key, reader)))) * 100;
     const mx = Math.ceil(scale / 10) * 10;
     const rows = B.map(b => {
       const s = U.score(m.sc, b.key, reader) * 100, rf = U.score(ref.scores, b.key, reader) * 100, d = s - rf;
-      return `<div class="pt-row" style="${b.key === task ? 'font-weight:700' : ''}"><span>${b.name}</span><div class="tr"><i style="width:${s / mx * 100}%;background:${m.a ? U.col(m.a) : 'var(--ref)'}"></i><u style="left:${rf / mx * 100}%" title="Reference RAG ${rf.toFixed(1)}"></u></div>
+      return `<div class="pt-row" style="${b.key === task ? 'font-weight:700' : ''}" ${avgOnly ? `title="${m.r.method[b.key]}"` : ''}><span>${b.name}</span><div class="tr"><i style="width:${s / mx * 100}%;background:${fill(m)}"></i><u style="left:${rf / mx * 100}%" title="Reference RAG ${rf.toFixed(1)}"></u></div>
         <span class="v">${s.toFixed(1)}</span><span class="d ${m.key === 'ref' ? '' : d >= 0 ? 'up' : 'down'}">${m.key === 'ref' ? '' : U.sgn(d)}</span></div>`;
     }).join('');
     const tr = m.key === 'gpt61sol_codex' ? `<p style="margin:16px 0 0"><a href="traces/#${task === 'avg' ? 'hotpotqa' : task}">Browse this agent's build trace${task === 'avg' ? 's' : ' on ' + bname(task)} →</a></p>` : '';
     $('.js-detail').innerHTML = `<div class="who"><div class="h">${dot}<h3>${U.esc(m.name)}</h3></div><div class="harn">${m.a ? m.a.harness : U.esc(m.r.desc)}</div>
       <div class="big"><b>${U.pct(v)}</b>${m.key !== 'ref' ? `<span class="${dr >= 0 ? 'up' : 'down'}">${U.sgn(dr)} vs Reference RAG</span>` : ''}${m.key !== 'bm25' && m.key !== 'closed_book' ? `<span class="${db >= 0 ? 'up' : 'down'}" style="opacity:.75">${U.sgn(db)} vs BM25</span>` : ''}</div>
-      <div class="chips">${chips}</div>${tr}</div>
+      <div class="chips">${chips}</div>${tr}${avgOnly ? `<p class="meth">Highest-scoring method per task: ${B.map(b => `${m.r.method[b.key]} (${b.name})`).join(', ')}.</p>` : ''}</div>
       <div class="pertask"><h4>Per task · ${reader === 'avg' ? 'mean of five answering models' : R.find(r => r.key === reader).name} · tick = Reference RAG</h4>${rows}</div>`;
   }
 
   function renderTable() {
-    const rows = [...all].sort((x, y) => U.macro(y.sc, reader) - U.macro(x.sc, reader));
+    const rows = shown(reader).sort((x, y) => U.macro(y.sc, reader) - U.macro(x.sc, reader));
     const best = B.map(b => Math.max(...D.agents.map(a => U.score(a.scores, b.key, reader))));
-    const ranges = B.map(b => { const v = all.map(m => U.score(m.sc, b.key, reader)); return [Math.min(...v), Math.max(...v)]; });
+    const ranges = B.map(b => { const v = rows.map(m => U.score(m.sc, b.key, reader)); return [Math.min(...v), Math.max(...v)]; });
     const av = rows.map(m => U.macro(m.sc, reader)), ar = [Math.min(...av), Math.max(...av)];
     const cats = []; B.forEach(b => { const c = cats[cats.length - 1]; if (c && c.n === b.category) c.k++; else cats.push({ n: b.category, k: 1 }); });
     let h = `<thead><tr class="cat"><th></th><th class="m"></th><th class="avg"></th>${cats.map(c => `<th colspan="${c.k}">${c.n}</th>`).join('')}</tr>
@@ -155,8 +158,8 @@
   U.onRender(() => {
     $('.js-agentpills').innerHTML = D.agents.map(a => `<span class="pill"><i class="dot" style="background:${U.col(a)};width:8px;height:8px;margin-right:6px"></i>${a.model} <span style="color:var(--faint)">· ${a.harness}</span></span>`).join('');
   });
-  $('.js-readerpills').innerHTML = ['Gemma-4-E4B', 'Gemma-3-4B', 'Phi-4-mini', 'SmolLM3-3B', 'Llama-3.2-3B'].map(n => `<span class="pill">${n}</span>`).join('') + `<p class="note" style="margin:6px 0 0">Four families, zero-shot, native chat template, temperature 0, ≤ 512 output tokens.</p>`;
-  $('.js-refs').innerHTML = D.refs.map(r => `<dt>${r.name}</dt><dd>${r.desc}</dd>`).join('') + `<dt>Human-SOTA</dt><dd>13 recent methods (HippoRAG 2, LightRAG, RAPTOR, SubgraphRAG, HyDE, …) adapted to the same contract.</dd>`;
+  $('.js-readerpills').innerHTML = ['Gemma-4-E4B', 'Gemma-3-4B', 'Phi-4-mini', 'SmolLM3-3B', 'Llama-3.2-3B'].map(n => `<span class="pill">${n}</span>`).join('') + `<p class="note" style="margin:6px 0 0">We use zero-shot prompting for all benchmarks and apply each answering model's native chat template. We use the same task-specific answer instruction across models, set the temperature to 0, and limit output to 512 tokens.</p>`;
+  $('.js-refs').innerHTML = D.refs.map(r => `<dt>${r.name}</dt><dd>${r.desc}</dd>`).join('');
 
   // ---------------- Figure A: stability across answering models ----------------
   let focusA = null;
@@ -179,15 +182,13 @@
     host.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
     U.bindTips(host);
     legendAgents('.js-stab-leg', k => { focusA = focusA === k ? null : k; renderStab(); }, k => !focusA || focusA === k);
-    const firsts = rs.map(r => [...D.agents].sort((x, y) => U.macro(y.scores, r.key) - U.macro(x.scores, r.key))[0].model);
-    const above = rs.map(r => D.agents.filter(a => lead(a, r.key) > 0).length);
-    $('.js-t-stab').textContent = `${firsts.every(f => f === firsts[0]) ? firsts[0] + ' ranks first under all five answering models' : 'The leader changes with the answering model'}, and the lines stay nearly parallel. The lead over Reference RAG shifts more: ${Math.min(...above)} to ${Math.max(...above)} of nine configurations beat it, depending on the answering model.`;
   });
 
   function legendAgents(sel, onClick, isOn) {
     const el = $(sel), groups = {};
     D.agents.forEach(a => (groups[a.harness] = groups[a.harness] || []).push(a));
-    el.innerHTML = Object.entries(groups).map(([h, as]) => `<span class="grp">${h}</span>` + as.map(a => `<span class="tog ${isOn(a.key) ? '' : 'off'}" data-k="${a.key}"><i class="dot" style="background:${U.col(a)}"></i>${a.model}</span>`).join('')).join('');
+    // one grid row per harness group (label column + items column), so labels stay aligned when items wrap
+    el.innerHTML = Object.entries(groups).map(([h, as]) => `<span class="grp">${h}</span><div class="items">` + as.map(a => `<span class="tog ${isOn(a.key) ? '' : 'off'}" data-k="${a.key}"><i class="dot" style="background:${U.col(a)}"></i>${a.model}</span>`).join('') + '</div>').join('');
     el.querySelectorAll('.tog').forEach(t => t.onclick = () => onClick(t.dataset.k));
   }
 
@@ -216,8 +217,6 @@
     });
     host.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
     U.bindTips(host);
-    const lats = D.agents.map(a => U.mean(B.map(b => a.latency[b.key])));
-    $('.js-t-pareto').textContent = `Every agent-built system is slower than Reference RAG (${ref.latency_avg.toFixed(2)} s): ${Math.min(...lats).toFixed(2)}–${Math.max(...lats).toFixed(2)} s per question. Only Gemini 3.8 Flash and the three Sol models sit on the frontier; DeepSeek V4.1 Flash is the slowest yet scores below five faster agents.`;
   });
 
   // ---------------- Figure C: gains by task ----------------
@@ -225,7 +224,7 @@
   U.onRender(function renderTasks() {
     const host = $('.js-tasks-chart'), W = 1060, rowH = 34, L = 92, Rm = 20, T = 6, H = T + B.length * rowH + 34;
     const d = (sc, b) => (U.score(sc, b, 'avg') - U.score(ref.scores, b, 'avg')) * 100;
-    const vals = B.flatMap(b => [...D.agents.map(a => d(a.scores, b.key)), d(bm25.scores, b.key)]);
+    const vals = B.flatMap(b => [...D.agents.map(a => d(a.scores, b.key)), d(bm25.scores, b.key), d(hs.scores, b.key)]);
     const lo = Math.floor(Math.min(...vals) / 5) * 5, hi = Math.ceil(Math.max(...vals) / 5) * 5;
     const sx = v => L + (v - lo) / (hi - lo) * (W - L - Rm);
     let g = '';
@@ -236,6 +235,8 @@
       g += `<text class="lbl" x="${L - 12}" y="${y + 4}" text-anchor="end">${b.name}</text>`;
       const bv = d(bm25.scores, b.key);
       g += `<path data-tip="<b>${b.name}</b> · Naive BM25 RAG<br>${U.sgn(bv)} vs Reference RAG" d="M${sx(bv)},${y - 6} l6,6 l-6,6 l-6,-6z" fill="var(--ref)"/>`;
+      const hv = d(hs.scores, b.key);
+      g += `<rect data-tip="<b>${b.name}</b> · Human-SOTA (${hs.method[b.key]})<br>${(U.score(hs.scores, b.key, 'avg') * 100).toFixed(1)} (${U.sgn(hv)} vs Reference RAG)" x="${sx(hv) - 5}" y="${y - 5}" width="10" height="10" fill="var(--surface)" stroke="var(--hs)" stroke-width="2.2"/>`;
       const ds = D.agents.map(a => ({ a, v: d(a.scores, b.key) })).sort((p, q) => p.v - q.v);
       ds.forEach((p, j) => {
         const near = j > 0 && Math.abs(sx(p.v) - sx(ds[j - 1].v)) < 9; p.off = near ? (ds[j - 1].off === 0 ? -6 : 0) : 0;
@@ -248,8 +249,6 @@
     host.innerHTML = `<div class="scroll-x"><svg class="chart" viewBox="0 0 ${W} ${H}" style="min-width:640px">${g}</svg></div>`;
     U.bindTips(host);
     legendAgents('.js-tasks-leg', k => { focusC = focusC === k ? null : k; renderTasks(); }, k => !focusC || focusC === k);
-    const allBeat = B.filter(b => D.agents.every(a => d(a.scores, b.key) > 0)).map(b => b.name);
-    $('.js-t-tasks').textContent = `The best agent leads Reference RAG by 27.3 points on CWQ, 21.6 on WebQSP and 13.0 on HotpotQA, but by at most 1.5 on NQ and FEVER. All nine agents beat it on ${allBeat.join(', ')}; on FEVER seven of nine fall below it.`;
   });
 
   // ---------------- Figure D: strategies ----------------
@@ -352,16 +351,14 @@
       g += `<circle data-tip="<b>GPT-6.1 Sol</b> · ${bname(t)}<br>${s.toFixed(1)} → ${q.toFixed(1)} (${U.sgn(q - s)})" cx="${sx(q)}" cy="${y + 28.5}" r="6" fill="${cG}"/>`;
       const halo = 'paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round';
       g += `<text class="num" x="${sx(d) + 9}" y="${y + 18}" style="font-weight:500;font-size:11px;${halo}">${U.sgn(d - s)}</text><text class="num" x="${sx(q) + 10}" y="${y + 32}" style="font-size:11px;${halo}">${U.sgn(q - s)}</text>`;
-      g += `<circle data-tip="<b>${G.method[t]}${t === 'hotpotqa' ? '*' : ''}</b> start package · ${bname(t)}: ${s.toFixed(1)}" cx="${sx(s)}" cy="${y + 21.5}" r="6" fill="var(--surface)" stroke="var(--ref-ink)" stroke-width="2"/>`;
-      const mt = G.method[t] + (t === 'hotpotqa' ? '*' : ''), fits = sx(s) - 10 - tw(mt, 5.6) > L + 4;
+      g += `<circle data-tip="<b>${G.method[t]}</b> start package · ${bname(t)}: ${s.toFixed(1)}" cx="${sx(s)}" cy="${y + 21.5}" r="6" fill="var(--surface)" stroke="var(--ref-ink)" stroke-width="2"/>`;
+      const mt = G.method[t], fits = sx(s) - 10 - tw(mt, 5.6) > L + 4;
       g += fits ? `<text x="${sx(s) - 10}" y="${y + 25}" text-anchor="end" class="sub" style="${halo}">${mt}</text>`
         : `<text x="${sx(s) - 4}" y="${y + 45}" class="sub" style="${halo}">${mt}</text>`;
     });
     host.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
     U.bindTips(host);
     $('.js-human-leg').innerHTML = `<span><i class="dot" style="background:var(--surface);border:2px solid var(--ref-ink)"></i>Human-SOTA start</span><span><i class="dot" style="background:${cD}"></i>DeepSeek V4.1 Flash</span><span><i class="dot" style="background:${cG}"></i>GPT-6.1 Sol</span><span><i style="width:2px;height:12px;background:var(--ink);opacity:.45;display:inline-block"></i>Reference RAG</span>`;
-    const gG = G.tasks.map(t => G.g61[t] - G.start[t]), gD = G.tasks.map(t => G.dsh[t] - G.start[t]);
-    $('.js-t-human').textContent = `Starting from a human-designed method on seven tasks, GPT-6.1 Sol gains ${U.mean(gG).toFixed(1)} points on average (${Math.min(...gG).toFixed(1)}–${Math.max(...gG).toFixed(1)}) and DeepSeek V4.1 Flash ${U.mean(gD).toFixed(1)}. No starting package beats Reference RAG; after six hours GPT-6.1 Sol does on all seven tasks.`;
   });
 
   // ---------------- Figure H: automated RAG frameworks ----------------
@@ -386,7 +383,5 @@
     host.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
     U.bindTips(host);
     $('.js-fw-leg').innerHTML = series.map(([k, n, c]) => `<span><i class="dot" style="background:${c};border-radius:3px"></i>${n}</span>`).join('') + `<span><i style="width:14px;border-top:2px dashed var(--ink);opacity:.6;display:inline-block"></i>Reference RAG</span>`;
-    const gaps = F.tasks.flatMap(t => ['autorag', 'flashrag'].filter(k => F[k][t] != null).map(k => F.g61[t] - F[k][t]));
-    $('.js-t-fw').textContent = `Neither framework beats the agent on any task: the gap runs from ${Math.min(...gaps).toFixed(1)} points on QASPER to ${Math.max(...gaps).toFixed(1)} on the knowledge-graph tasks, where neither framework's search space includes graph traversal. On the six tasks both complete, the frameworks average about Reference RAG level.`;
   });
 })();

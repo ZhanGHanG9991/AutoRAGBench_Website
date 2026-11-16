@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AutoRAGBench Traces</title>
-<meta name="description" content="Timestamped agent trajectories: how an LLM agent builds a RAG system in six hours on each AutoRAGBench task.">
+<meta name="description" content="AutoRAGBench development trajectories: GPT-6.1 Sol with Codex CLI on the nine tasks.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1a36'/%3E%3Crect x='7' y='17' width='4' height='8' rx='1.5' fill='%238fa8ff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1.5' fill='%238fa8ff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1.5' fill='%235ee0b0'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css">
 <script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
@@ -19,7 +19,7 @@
     <div class="nav-links">
       <a href="../#leaderboard">Leaderboard</a>
       <a href="../#benchmark">Benchmark</a>
-      <a href="../#findings">Findings</a>
+      <a href="../#findings">Results</a>
       <a href="./" class="on">Traces</a>
     </div>
     <a class="icon-btn js-github" href="#" title="GitHub" aria-label="GitHub"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
@@ -29,9 +29,8 @@
 
 <header class="page-head">
   <div class="wrap">
-    <span class="eyebrow">Agent traces</span>
-    <h1>Six hours of RAG engineering, step by step</h1>
-    <p>How <b class="js-agent"></b> spends its build on each task. Each trace is condensed from the raw rollout: commands, edits, the agent's own messages and official <code>self_check</code> scores on development questions, with build-clock timestamps (h:mm). Every step is grounded in a raw event.</p>
+    <h1>Development Trajectories</h1>
+    <p>As an agent develops its RAG system, we record its actions and observations at each step. We call this sequence of records the run's development trajectory. Below, each trace of <b class="js-agent"></b> is condensed from the raw trajectory: commands, edits, the agent's own messages and <code>self_check</code> scores on development questions, with build-clock timestamps (h:mm).</p>
   </div>
 </header>
 
