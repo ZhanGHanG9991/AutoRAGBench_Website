@@ -7,16 +7,22 @@
   const hs = D.refs.find(r => r.key === 'hsota');
   // Human-SOTA has only five-answering-model means, so it is shown under "Mean of all five" only
   const shown = rd => all.filter(m => rd === 'avg' || !(m.r && m.r.avg_only));
-  const fill = m => m.a ? U.col(m.a) : m.key === 'hsota' ? 'var(--hs)' : m.key === 'ref' ? 'var(--ref-ink)' : 'var(--ref)';
+  const fill = m => m.a ? U.col(m.a) : LINE[m.key][0];
   const tw = (s, px = 7.4) => s.length * px;   // rough SVG text width
 
-  // ---------------- hero glance ----------------
+  // baselines are drawn as dashed lines in both the hero card and the leaderboard chart
+  const LINE = { ref: ['var(--ref-ink)', '7 4', 1.8], hsota: ['var(--hs)', '7 4', 1.8], bm25: ['var(--ref-ink)', '3 3', 1.4], closed_book: ['var(--ref-ink)', '1.5 3.5', 1.4] };
+
+  // ---------------- hero glance: same encoding as the leaderboard (agent bars in harness colours, baselines dashed) ----------------
   U.onRender(() => {
-    const top = [...D.agents].sort((x, y) => U.macro(y.scores, 'avg') - U.macro(x.scores, 'avg')).slice(0, 3);
-    const rows = [...top.map(a => ({ n: a.model, v: U.macro(a.scores, 'avg'), c: U.col(a) })),
-      ...[ref, hs, bm25, cb].map(r => ({ n: r.key === 'hsota' ? 'Human-SOTA' : r.name, v: U.macro(r.scores, 'avg'), c: r.key === 'hsota' ? 'var(--hs)' : r.key === 'ref' ? 'var(--ref-ink)' : 'var(--ref)', base: true }))];
+    const rows = all.map(m => ({ m, v: U.macro(m.sc, 'avg') })).sort((x, y) => y.v - x.v);
     const el = $('.js-glance');
-    el.innerHTML = rows.map(r => `<div class="row${r.base ? ' base' : ''}"><span>${r.n}</span><div class="track"><div class="fill" style="background:${r.c}" data-w="${r.v / 0.6 * 100}"></div></div><b>${U.pct(r.v)}</b></div>`).join('');
+    el.innerHTML = rows.map(({ m, v }) => {
+      const w = v / 0.6 * 100, name = m.key === 'hsota' ? 'Human-SOTA' : m.name;
+      if (m.a) return `<div class="row"><span>${name}</span><div class="track"><div class="fill" style="background:${U.col(m.a)}" data-w="${w}"></div></div><b>${U.pct(v)}</b></div>`;
+      const [c, dash] = LINE[m.key];
+      return `<div class="row base"><span style="color:${c}">${name}</span><div class="track dl"><div class="fill" data-w="${w}"><svg width="100%" height="10"><line x1="0" x2="100%" y1="5" y2="5" stroke="${c}" stroke-width="2.2" stroke-dasharray="${dash}"/></svg></div></div><b style="color:${c}">${U.pct(v)}</b></div>`;
+    }).join('');
     requestAnimationFrame(() => requestAnimationFrame(() => el.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w + '%')));
   });
 
@@ -63,7 +69,6 @@
   const short = { 'DeepSeek Harness': 'DSH', 'reference': 'reference' };
 
   // baselines are drawn as horizontal lines across the agent bars
-  const LINE = { ref: ['var(--ref-ink)', '7 4', 1.8], hsota: ['var(--hs)', '7 4', 1.8], bm25: ['var(--ref-ink)', '3 3', 1.4], closed_book: ['var(--ref-ink)', '1.5 3.5', 1.4] };
 
   function renderMain() {
     const host = $('.js-main');
