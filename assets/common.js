@@ -1,7 +1,7 @@
 // Site-wide settings: edit these when the paper / code go public.
 window.SITE = {
   github: 'https://github.com/ZhanGHanG9991/AutoRAGBench',
-  paper: '',            // e.g. 'https://arxiv.org/abs/xxxx.xxxxx' — empty keeps the button disabled
+  paper: 'https://arxiv.org/abs/2611.25582',  // empty keeps the button disabled
   team: ''              // HTML for the author line in the footer; empty shows the placeholder
 };
 
@@ -9,9 +9,14 @@ window.SITE = {
   const S = window.SITE;
   document.querySelectorAll('.js-github').forEach(a => { a.href = S.github; a.target = '_blank'; a.rel = 'noopener'; });
   document.querySelectorAll('.js-paper').forEach(a => {
-    if (S.paper) { a.href = S.paper; a.target = '_blank'; a.removeAttribute('aria-disabled'); a.querySelector('span').textContent = 'Read the paper'; }
+    if (S.paper) { a.href = S.paper; a.target = '_blank'; a.removeAttribute('aria-disabled'); a.querySelector('span').textContent = 'Paper'; }
     else a.addEventListener('click', e => e.preventDefault());
   });
+  document.querySelectorAll('.js-copy-cite').forEach(b => b.addEventListener('click', () => {
+    const txt = document.querySelector('.js-cite').textContent;
+    const done = () => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, () => {});
+  }));
   const team = document.querySelector('.js-team');
   if (team && S.team) team.innerHTML = S.team;
 
